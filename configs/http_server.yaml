@@ -1,0 +1,5 @@
+http_server:
+    port: "8080"
+    read_timeout: 10s
+    write_timeout: 10s
+    max_header_megabytes: 10

@@ -1,0 +1,11 @@
+logger:
+  # -1 - trace level
+  # 0 - debug level
+  # 1 - info level
+  # 2 - warn level
+  # 3 - error level
+  # 4 - fatal level
+  # 5 - panic level
+  # 6 - no level
+  # 7 - disabled
+  log_level: 0
