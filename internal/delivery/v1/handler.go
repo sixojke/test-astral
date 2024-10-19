@@ -16,5 +16,8 @@ func NewHandler(service *service.Service) *Handler {
 }
 
 func (h *Handler) Init(router *gin.RouterGroup) {
-
+	register := router.Group("/register")
+	{
+		register.GET("", h.registerUser)
+	}
 }

@@ -6,29 +6,29 @@ import (
 )
 
 type Response struct {
-	Error    errorResponse `json:"error"`
-	Response interface{}   `json:"response"`
-	Data     interface{}   `json:"data"`
+	Error    *errorResponse `json:"error,omitempty"`
+	Response interface{}    `json:"response,omitempty"`
+	Data     interface{}    `json:"data,omitempty"`
 }
 
 type errorResponse struct {
-	Code int    `json:"code"`
-	Text string `json:"text"`
+	Code int    `json:"code,omitempty"`
+	Text string `json:"text,omitempty"`
 }
 
 func errResponse(с *gin.Context, statusCode int, err, errResp string) {
 	с.AbortWithStatusJSON(statusCode, Response{
-		Error: errorResponse{
+		Error: &errorResponse{
 			Code: statusCode,
 			Text: errResp,
 		},
 	})
 
-	logger.Error(err)
+	logger.Warn(err)
 }
 
 func newResponse(c *gin.Context, statusCode int, data, response interface{}) {
-	c.AbortWithStatusJSON(statusCode, Response{
+	c.JSON(statusCode, Response{
 		Response: response,
 		Data:     data,
 	})

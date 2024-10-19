@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"path"
 
 	"github.com/joho/godotenv"
@@ -10,9 +11,12 @@ import (
 
 // Config - structure for storing application configuration
 type Config struct {
-	App        App
-	Logger     Logger
-	HTTPServer HTTPServer
+	App           App
+	Logger        Logger
+	HTTPServer    HTTPServer
+	Postgres      Postgres
+	Authorization Authorization
+	Hasher        Hasher
 }
 
 // Init - a function for initializing the application configuration
@@ -28,6 +32,7 @@ func Init(configPath string, envFile string) (*Config, error) {
 		{fileName: "app.yaml", key: "app", rawVal: &config.App},
 		{fileName: "logger.yaml", key: "logger", rawVal: &config.Logger},
 		{fileName: "http_server.yaml", key: "http_server", rawVal: &config.HTTPServer},
+		{fileName: "postgres.yaml", key: "postgres", rawVal: &config.Postgres},
 	}
 
 	// Reading configuration from YAML files
@@ -69,6 +74,15 @@ func configFromEnv(cfg *Config, envFile string) error {
 	if err := godotenv.Load(envFile); err != nil {
 		return fmt.Errorf("failed to read env file: %s: %s", envFile, err)
 	}
+
+	// Fill the configuration structure with values ​​from environment variables
+	cfg.Postgres.Username = os.Getenv("POSTGRES_USER")
+	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
+	cfg.Postgres.DBName = os.Getenv("POSTGRES_DB")
+
+	cfg.Authorization.AdminToken = os.Getenv("AUTH_ADMIN_TOKEN")
+
+	cfg.Hasher.Salt = os.Getenv("HASHER_SALT")
 
 	return nil
 }

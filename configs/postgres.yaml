@@ -1,0 +1,7 @@
+postgres:
+  # username in .env
+  # password in .env
+  # db_name in .env
+  host: "localhost"
+  port: 5440
+  ssl_mode: "disable"
