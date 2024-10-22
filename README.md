@@ -24,5 +24,5 @@ HASHER_SALT=43kolpcqjrq3v4rpr
 
 Перейдите по этой ссылке, чтобы открыть документацию 
 ```link
-http://localhost:8080/api/swagger/index.html#/docs/get_docs
+http://localhost:8080/api/swagger/index.html
 ```
