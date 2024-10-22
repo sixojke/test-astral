@@ -34,6 +34,17 @@ type registerUserResponse struct {
 	Login string `json:"login"`
 }
 
+// @Summary Register user
+// @Tags auth
+// @Description Create user account
+// @ModuleID registerUser
+// @Accept json
+// @Produce json
+// @Param input body registerUserInp true "Register info"
+// @Success 200 {object} swagResponse{response=registerUserResponse} "Successful registration"
+// @Failure 400 {object} swagError "Bad Request"
+// @Failure 500 {object} swagError "Internal Server Error"
+// @Router /register [post]
 func (h *Handler) registerUser(c *gin.Context) {
 	var inp registerUserInp
 	if err := c.BindJSON(&inp); err != nil {

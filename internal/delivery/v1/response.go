@@ -16,6 +16,17 @@ type errorResponse struct {
 	Text string `json:"text,omitempty"`
 }
 
+type swagError struct {
+	Error *errorResponse `json:"error,omitempty"`
+}
+
+type swagResponse struct {
+	Response interface{} `json:"response,omitempty"`
+}
+type swagData struct {
+	Data interface{} `json:"data,omitempty"`
+}
+
 func errResponse(с *gin.Context, statusCode int, err, errResp string) {
 	с.AbortWithStatusJSON(statusCode, Response{
 		Error: &errorResponse{
@@ -28,7 +39,7 @@ func errResponse(с *gin.Context, statusCode int, err, errResp string) {
 }
 
 func newResponse(c *gin.Context, statusCode int, data, response interface{}) {
-	c.JSON(statusCode, Response{
+	c.AbortWithStatusJSON(statusCode, Response{
 		Response: response,
 		Data:     data,
 	})

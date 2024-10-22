@@ -17,6 +17,7 @@ type Config struct {
 	Postgres      Postgres
 	Authorization Authorization
 	Hasher        Hasher
+	Documents     Documents
 }
 
 // Init - a function for initializing the application configuration
@@ -33,6 +34,8 @@ func Init(configPath string, envFile string) (*Config, error) {
 		{fileName: "logger.yaml", key: "logger", rawVal: &config.Logger},
 		{fileName: "http_server.yaml", key: "http_server", rawVal: &config.HTTPServer},
 		{fileName: "postgres.yaml", key: "postgres", rawVal: &config.Postgres},
+		{fileName: "auth.yaml", key: "auth", rawVal: &config.Authorization},
+		{fileName: "documents.yaml", key: "documents", rawVal: &config.Documents},
 	}
 
 	// Reading configuration from YAML files
@@ -81,6 +84,7 @@ func configFromEnv(cfg *Config, envFile string) error {
 	cfg.Postgres.DBName = os.Getenv("POSTGRES_DB")
 
 	cfg.Authorization.AdminToken = os.Getenv("AUTH_ADMIN_TOKEN")
+	cfg.Authorization.JWT.SigningKey = os.Getenv("AUTH_SIGNING_KEY")
 
 	cfg.Hasher.Salt = os.Getenv("HASHER_SALT")
 

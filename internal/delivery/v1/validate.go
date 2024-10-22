@@ -3,6 +3,8 @@ package v1
 import (
 	"regexp"
 	"unicode"
+
+	"github.com/sixojke/test-astral/pkg/logger"
 )
 
 func validateLogin(login string) bool {
@@ -31,6 +33,9 @@ func validatePassword(password string) bool {
 			hasSymbol = true
 		}
 	}
+
+	logger.Debugf("Password validate: hasUpper=%v hasLower=%v hasDigit=%v hasSymbol=%v len>8=%v",
+		hasUpper, hasLower, hasDigit, hasSymbol, len(password) > 8)
 
 	return hasUpper && hasLower && hasDigit && hasSymbol && len(password) > 8
 }

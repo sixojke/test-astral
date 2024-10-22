@@ -1,0 +1,429 @@
+basePath: /api
+definitions:
+  domain.Document:
+    properties:
+      created:
+        type: string
+      filePath:
+        type: string
+      grants:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      is_file:
+        type: boolean
+      is_public:
+        type: boolean
+      json:
+        type: string
+      mime:
+        type: string
+      name:
+        type: string
+    type: object
+  v1.authUserInp:
+    properties:
+      login:
+        type: string
+      pswd:
+        type: string
+    type: object
+  v1.authUserResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  v1.errorResponse:
+    properties:
+      code:
+        type: integer
+      text:
+        type: string
+    type: object
+  v1.getDocumentsData:
+    properties:
+      docs:
+        items:
+          $ref: '#/definitions/domain.Document'
+        type: array
+    type: object
+  v1.registerUserInp:
+    properties:
+      login:
+        type: string
+      pswd:
+        type: string
+      token:
+        type: string
+    type: object
+  v1.registerUserResponse:
+    properties:
+      login:
+        type: string
+    type: object
+  v1.swagData:
+    properties:
+      data: {}
+    type: object
+  v1.swagError:
+    properties:
+      error:
+        $ref: '#/definitions/v1.errorResponse'
+    type: object
+  v1.swagResponse:
+    properties:
+      response: {}
+    type: object
+  v1.uploadDocumentData:
+    properties:
+      file:
+        type: string
+      json: {}
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for shop
+  title: All social networks shop API
+  version: "1.0"
+paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      description: User login
+      parameters:
+      - description: Register info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.authUserInp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful login
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.swagResponse'
+            - properties:
+                response:
+                  $ref: '#/definitions/v1.authUserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.swagError'
+      summary: Auth user
+      tags:
+      - auth
+  /auth/{token}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete session by token
+      parameters:
+      - description: Session token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.swagResponse'
+            - properties:
+                response:
+                  additionalProperties:
+                    type: boolean
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.swagError'
+      summary: Delete session by token
+      tags:
+      - auth
+  /docs:
+    get:
+      consumes:
+      - application/json
+      description: Get documents by user
+      parameters:
+      - description: User login
+        in: query
+        name: login
+        type: string
+      - description: Key for filter
+        in: query
+        name: key
+        type: string
+      - description: Value for filter
+        in: query
+        name: value
+        type: string
+      - description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Page for pagination
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Documents list
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.swagData'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.getDocumentsData'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.swagError'
+      security:
+      - UsersAuth: []
+      summary: Get documents
+      tags:
+      - docs
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload document
+      parameters:
+      - description: Document name
+        in: formData
+        name: name
+        type: string
+      - description: Is file
+        in: formData
+        name: is_file
+        type: boolean
+      - description: Is public
+        in: formData
+        name: public
+        type: boolean
+      - description: Document mime type
+        in: formData
+        name: mime
+        type: string
+      - description: Grant array
+        in: formData
+        name: grant[]
+        type: string
+      - description: Document data
+        in: formData
+        name: json
+        type: string
+      - description: Document file
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Document uploaded successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.swagData'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.uploadDocumentData'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.swagError'
+      security:
+      - UsersAuth: []
+      summary: Upload document
+      tags:
+      - docs
+  /docs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete document by ID
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.swagResponse'
+            - properties:
+                response:
+                  additionalProperties:
+                    type: boolean
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "404":
+          description: Document not found
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.swagError'
+      security:
+      - UsersAuth: []
+      summary: Delete document by ID
+      tags:
+      - docs
+    get:
+      consumes:
+      - application/json
+      description: Get document by ID
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Document
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.swagData'
+            - properties:
+                data:
+                  $ref: '#/definitions/domain.Document'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "404":
+          description: Document not found
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.swagError'
+      security:
+      - UsersAuth: []
+      summary: Get document by ID
+      tags:
+      - docs
+    head:
+      consumes:
+      - application/json
+      description: Check document by ID
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "404":
+          description: Document not found
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.swagError'
+      security:
+      - UsersAuth: []
+      summary: Check document by ID
+      tags:
+      - docs
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Create user account
+      parameters:
+      - description: Register info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.registerUserInp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful registration
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.swagResponse'
+            - properties:
+                response:
+                  $ref: '#/definitions/v1.registerUserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.swagError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.swagError'
+      summary: Register user
+      tags:
+      - auth
+securityDefinitions:
+  UsersAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

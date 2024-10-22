@@ -18,9 +18,11 @@ import (
 	"github.com/sixojke/test-astral/internal/repository"
 	"github.com/sixojke/test-astral/internal/server"
 	"github.com/sixojke/test-astral/internal/service"
+	"github.com/sixojke/test-astral/pkg/auth"
 	"github.com/sixojke/test-astral/pkg/db"
 	"github.com/sixojke/test-astral/pkg/hash"
 	"github.com/sixojke/test-astral/pkg/logger"
+	"github.com/sixojke/test-astral/pkg/migrations"
 )
 
 const (
@@ -28,6 +30,16 @@ const (
 	env     = ".env"
 )
 
+// @title All social networks shop API
+// @version 1.0
+// @description REST API for shop
+
+// @host localhost:8080
+// @BasePath /api
+
+// @securityDefinitions.apikey UsersAuth
+// @in header
+// @name Authorization
 func Run() {
 	// Get project directories
 	currentDir, err := os.Getwd()
@@ -47,6 +59,12 @@ func Run() {
 	// Init hasher
 	hasher := hash.NewSHA1Hasher(cfg.Hasher.Salt)
 
+	// Init token manager
+	tokenManager, err := auth.NewManager(cfg.Authorization.JWT.SigningKey)
+	if err != nil {
+		logger.Fatalf("error init token manager: %v", err)
+	}
+
 	// Init PostgreSQL
 	postgres, err := db.NewPostgresDB(db.PostgresConfig{
 		Host:     cfg.Postgres.Host,
@@ -62,17 +80,23 @@ func Run() {
 	defer postgres.Close()
 	logger.Info("[POSTGRES] Connection successful")
 
+	if err := migrations.MigratePostgres(cfg.Postgres); err != nil {
+		logger.Errorf("postgres migrate error: %v", err)
+	}
+	logger.Info("[POSTGRES] Migrate successful")
+
 	repo := repository.NewService(&repository.Deps{
 		Postgres: postgres,
 	})
 
 	service := service.NewService(&service.Deps{
-		Repository: repo,
-		Config:     cfg,
-		Hasher:     hasher,
+		Repository:   repo,
+		Config:       cfg,
+		Hasher:       hasher,
+		TokenManager: tokenManager,
 	})
 
-	handler := delivery.NewHandler(service)
+	handler := delivery.NewHandler(service, cfg, tokenManager)
 
 	srv := server.NewServer(cfg.HTTPServer, handler.Init())
 	go func() {

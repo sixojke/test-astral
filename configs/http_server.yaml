@@ -3,3 +3,4 @@ http_server:
     read_timeout: 10s
     write_timeout: 10s
     max_header_megabytes: 10
+    max_file_size_mb: 10 

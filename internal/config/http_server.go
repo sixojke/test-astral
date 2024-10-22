@@ -7,4 +7,5 @@ type HTTPServer struct {
 	ReadTimeout        time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout       time.Duration `mapstructure:"write_timeout"`
 	MaxHeaderMegabytes int           `mapstructure:"max_header_megabytes"`
+	MaxFileSizeMb      int64         `mapstructure:"max_file_size_mb"`
 }
